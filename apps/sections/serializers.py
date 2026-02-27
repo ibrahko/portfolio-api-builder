@@ -18,3 +18,9 @@ class SectionSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ("id", "created_at", "updated_at")
+
+    def validate_settings(self, value):
+        # Si le frontend envoie explicitement null → on remplace par {}
+        if value is None:
+            return {}
+        return value
