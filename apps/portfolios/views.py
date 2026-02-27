@@ -5,12 +5,13 @@ from django.utils import timezone
 
 from shared.permissions import IsOwnerOrReadOnly, IsOwnerViaPortfolio
 from .models import Portfolio
-from .models_project import Project, Skill, Experience, Education
+from .models_project import Project, Skill, Experience, Education, SkillCategory
 from .serializers import (
     PortfolioListSerializer,
     PortfolioDetailSerializer,
     PortfolioWriteSerializer,
     ProjectSerializer,
+    SkillCategorySerializer,
     SkillSerializer,
     ExperienceSerializer,
     EducationSerializer,
@@ -24,7 +25,6 @@ class PortfolioViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         qs = Portfolio.objects.select_related("theme", "owner").all()
         if self.action in ["list", "retrieve"]:
-            # en public, ne renvoyer que les portfolios visibles
             return qs.filter(visibility="public")
         if self.request.user.is_authenticated:
             return qs.filter(owner=self.request.user)
@@ -38,6 +38,7 @@ class PortfolioViewSet(viewsets.ModelViewSet):
         return PortfolioWriteSerializer
 
     def perform_create(self, serializer):
+        # C'est ici que owner est fixé UNE seule fois
         serializer.save(owner=self.request.user)
 
     @action(detail=True, methods=["post"])
@@ -47,6 +48,7 @@ class PortfolioViewSet(viewsets.ModelViewSet):
         portfolio.save(update_fields=["last_published_at"])
         return Response({"status": "published"})
 
+
 class BasePortfolioChildViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOwnerViaPortfolio]
 
@@ -54,7 +56,11 @@ class BasePortfolioChildViewSet(viewsets.ModelViewSet):
         return self.queryset.filter(portfolio__owner=self.request.user)
 
     def perform_create(self, serializer):
-        # le frontend envoie 'portfolio' (id) dans le body
+        portfolio = serializer.validated_data.get("portfolio")
+        if portfolio is None:
+            raise PermissionDenied("Le champ 'portfolio' est obligatoire.")
+        if portfolio.owner != self.request.user:
+            raise PermissionDenied("Vous ne pouvez pas ajouter de projet à ce portfolio.")
         serializer.save()
 
 
@@ -76,3 +82,9 @@ class ExperienceViewSet(BasePortfolioChildViewSet):
 class EducationViewSet(BasePortfolioChildViewSet):
     queryset = Education.objects.select_related("portfolio")
     serializer_class = EducationSerializer
+
+
+class SkillCategoryViewSet(viewsets.ModelViewSet):
+    queryset = SkillCategory.objects.all().order_by("sort_order", "name")
+    serializer_class = SkillCategorySerializer
+    permission_classes = [permissions.IsAuthenticated]

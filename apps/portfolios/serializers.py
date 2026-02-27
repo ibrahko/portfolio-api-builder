@@ -18,6 +18,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = [
             "id",
+            "portfolio",
             "title",
             "slug",
             "short_description",
@@ -55,6 +56,7 @@ class SkillSerializer(serializers.ModelSerializer):
         model = Skill
         fields = [
             "id",
+            "portfolio",
             "name",
             "level",
             "is_visible",
@@ -69,6 +71,7 @@ class ExperienceSerializer(serializers.ModelSerializer):
         model = Experience
         fields = [
             "id",
+            "portfolio",
             "role",
             "company",
             "location",
@@ -85,6 +88,7 @@ class EducationSerializer(serializers.ModelSerializer):
         model = Education
         fields = [
             "id",
+            "portfolio",
             "school",
             "degree",
             "field_of_study",
@@ -99,6 +103,7 @@ class ContactInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactInfo
         fields = [
+            "portfolio",
             "email",
             "phone",
             "city",
@@ -230,7 +235,7 @@ class PortfolioWriteSerializer(serializers.ModelSerializer):
             "is_default",
         ]
 
-    def create(self, validated_data):
-        user = self.context["request"].user
-        return Portfolio.objects.create(owner=user, **validated_data)
-
+class SkillCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SkillCategory
+        fields = ["id", "name", "sort_order"]
