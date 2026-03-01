@@ -20,7 +20,19 @@ from .serializers import (
 
 class PortfolioViewSet(viewsets.ModelViewSet):
     lookup_field = "slug"
-    permission_classes = [IsOwnerOrReadOnly]
+
+    def get_permissions(self):
+        """
+        - list / retrieve : AllowAny (portfolios publics visibles par tous)
+        - create          : IsAuthenticated
+        - update / delete : IsAuthenticated + IsOwnerOrReadOnly
+        """
+        if self.action in ["list", "retrieve"]:
+            return [permissions.AllowAny()]
+        if self.action == "create":
+            return [permissions.IsAuthenticated()]
+        return [permissions.IsAuthenticated(), IsOwnerOrReadOnly()]
+    # permission_classes = [IsOwnerOrReadOnly]
 
     def get_queryset(self):
         qs = Portfolio.objects.select_related("theme", "owner").all()

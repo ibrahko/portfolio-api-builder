@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -57,7 +59,38 @@ LOCAL_APPS = [
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
+# ─── DRF ─────────────────────────────────────────────────────────────────────────────────
+
 REST_FRAMEWORK = {
+    # Auth
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+    # Permissions
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    # Pagination
+    "DEFAULT_PAGINATION_CLASS": "shared.pagination.StandardResultsPagination",
+    "PAGE_SIZE": 20,
+    # Filtres
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
+    ],
+    # Throttling
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "100/day",
+        "user": "1000/day",
+        "register": "10/hour",
+        "login": "20/hour",
+    },
+    # Renderer
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
@@ -65,19 +98,56 @@ REST_FRAMEWORK = {
 }
 
 
-
+# ─── Middleware ───────────────────────────────────────────────────────────────────────────
 
 MIDDLEWARE = [
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
+# ─── JWT ──────────────────────────────────────────────────────────────────────
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": True,
+    "ALGORITHM": "HS256",
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+}
+
+# ─── Spectacular (Swagger / OpenAPI) ─────────────────────────────────────────
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Neka Portfolio API",
+    "DESCRIPTION": "API RESTful pour le portfolio builder Neka.",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SWAGGER_UI_SETTINGS": {
+        "persistAuthorization": True,
+    },
+}
+
+# ─── CORS ─────────────────────────────────────────────────────────────────────
+
+CORS_ALLOW_CREDENTIALS = True
+
+# ─── URLs / WSGI ────────────────────────────────────────────────────────────────────────
+
 ROOT_URLCONF = "config.urls"
+
+# ─── Templates ───────────────────────────────────────────────────────────────────────────
 
 TEMPLATES = [
     {
@@ -107,6 +177,8 @@ DATABASES = {
     }
 }
 
+# ─── Password Validation ───────────────────────────────────────────────────────────────
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -126,18 +198,20 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# ─── Internationalisation ─────────────────────────────────────────────────────
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "fr-fr"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Africa/Abidjan"
 
 USE_I18N = True
 
 USE_TZ = True
 
+# ─── Static / Media ───────────────────────────────────────────────────────────
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
