@@ -18,6 +18,7 @@ CORS_ALLOWED_ORIGINS = [
 # Email console en dev
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-# Celery en dev (pas de broker, exécution synchrone)
+# Celery en dev : exécution synchrone (pas besoin de Redis)
 CELERY_TASK_ALWAYS_EAGER = True
 CELERY_TASK_EAGER_PROPAGATES = True
+
