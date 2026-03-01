@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 
 from .models import UserProfile
 from .serializers import UserSerializer, UserProfileSerializer, RegisterSerializer
+from shared.throttles import RegisterThrottle
 
 User = get_user_model()
 
@@ -38,6 +39,7 @@ class RegisterView(generics.CreateAPIView):
     GET  /api/auth/register/ → affiche le formulaire (browsable API)
     POST /api/auth/register/ → inscription
     """
+    throttle_classes = [RegisterThrottle]
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
 

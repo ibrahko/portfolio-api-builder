@@ -3,6 +3,11 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from apps.accounts.views import MeView, RegisterView
 from apps.themes.views import ThemeViewSet
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularSwaggerView,
+    SpectacularRedocView,
+)
 from apps.portfolios.views import (
     PortfolioViewSet,
     ProjectViewSet,
@@ -21,6 +26,7 @@ from apps.notifications.views import (
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
+    TokenBlacklistView,
 )
 
 router = DefaultRouter()
