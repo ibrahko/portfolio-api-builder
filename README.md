@@ -1,5 +1,7 @@
 # Portfolio Builder API
 
+**English** | [Français](README.fr.md)
+
 REST API behind a portfolio builder: developers and creatives sign up, compose one or more portfolios
 (projects, skills, experience, education, custom sections, theme) and publish them at a public URL.
 
