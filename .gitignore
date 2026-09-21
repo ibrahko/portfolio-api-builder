@@ -1,0 +1,32 @@
+# Environnements virtuels
+portfolio_env/
+venv/
+.venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Secrets (garder .env.example)
+.env
+.env.*
+!.env.example
+
+# Données locales
+logs/
+*.log
+media_files/
+media/
+staticfiles/
+db.sqlite3
+
+# Éditeurs et systèmes
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
