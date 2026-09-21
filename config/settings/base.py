@@ -22,7 +22,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-=eh)$3cet%brl_ntdap)mkx59*)!w#510)nncgdonqy+t8%7%4"
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY", "django-insecure-dev-only-change-me"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -45,6 +47,9 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "corsheaders",
     "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
+    "django_filters",
+    "drf_spectacular",
     "django_prometheus",
 ]
 
@@ -90,6 +95,8 @@ REST_FRAMEWORK = {
         "register": "10/hour",
         "login": "20/hour",
     },
+    # Schéma OpenAPI
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     # Renderer
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
@@ -224,6 +231,8 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # ─── Logging ──────────────────────────────────────────────────────────────────
+
+(BASE_DIR / "logs").mkdir(exist_ok=True)
 
 LOGGING = {
     "version": 1,
